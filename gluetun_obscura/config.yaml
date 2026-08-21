@@ -1,0 +1,55 @@
+name: "Gluetun (Obscura VPN)"
+version: "1.0.0"
+slug: "gluetun_obscura"
+description: "Gluetun VPN client wired up for Obscura VPN via WireGuard, exposing an HTTP/SOCKS5 proxy for routing *arr suite traffic through the tunnel."
+url: "https://github.com/Reforest4635/gluetun"
+arch:
+  - aarch64
+  - amd64
+  - armv7
+startup: services
+boot: auto
+init: false
+full_access: false
+cap_add:
+  - NET_ADMIN
+devices:
+  - /dev/net/tun
+ports:
+  8888/tcp: 8888
+  8388/tcp: 8388
+  8388/udp: 8388
+  8000/tcp: 8000
+ports_description:
+  8888/tcp: "HTTP proxy - point *arr app / Prowlarr indexer proxies here"
+  8388/tcp: "SOCKS5 proxy (TCP)"
+  8388/udp: "SOCKS5 proxy (UDP)"
+  8000/tcp: "Gluetun HTTP control server (status/health API)"
+options:
+  wireguard_private_key: ""
+  wireguard_addresses: ""
+  wireguard_endpoint_ip: ""
+  wireguard_endpoint_port: 51820
+  wireguard_public_key: ""
+  wireguard_preshared_key: ""
+  dns_servers: "1.1.1.1"
+  firewall_outbound_subnets: []
+  http_proxy_enabled: true
+  shadowsocks_enabled: true
+  control_server_api_key: ""
+  timezone: "America/New_York"
+  log_level: "info"
+schema:
+  wireguard_private_key: "password"
+  wireguard_addresses: "str"
+  wireguard_endpoint_ip: "str"
+  wireguard_endpoint_port: "int"
+  wireguard_public_key: "str"
+  wireguard_preshared_key: "password?"
+  dns_servers: "str"
+  firewall_outbound_subnets: ["str?"]
+  http_proxy_enabled: "bool"
+  shadowsocks_enabled: "bool"
+  control_server_api_key: "password?"
+  timezone: "str"
+  log_level: "list(debug|info|warning|error)"
