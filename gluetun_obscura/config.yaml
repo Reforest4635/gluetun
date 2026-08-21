@@ -1,5 +1,5 @@
 name: "Gluetun (Obscura VPN)"
-version: "1.0.0"
+version: "1.0.1"
 slug: "gluetun_obscura"
 description: "Gluetun VPN client wired up for Obscura VPN via WireGuard, exposing an HTTP/SOCKS5 proxy for routing *arr suite traffic through the tunnel."
 url: "https://github.com/Reforest4635/gluetun"
@@ -11,7 +11,7 @@ startup: services
 boot: auto
 init: false
 full_access: false
-cap_add:
+privileged:
   - NET_ADMIN
 devices:
   - /dev/net/tun
