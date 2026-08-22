@@ -66,4 +66,15 @@ if [ -z "$WIREGUARD_PRIVATE_KEY" ] || [ -z "$WIREGUARD_ENDPOINT_IP" ] || [ -z "$
   exit 1
 fi
 
+# Home Assistant's Supervisor injects its own internal DNS resolver into
+# every add-on container's /etc/resolv.conf. That overrides Gluetun's own
+# DNS management - Gluetun runs its own DNS-over-TLS resolver on 127.0.0.1
+# once the tunnel is up, and processes inside the container should use that,
+# not Supervisor's resolver (which can't resolve arbitrary external
+# hostnames the way a real upstream can, and causes lookups to return
+# garbage/internal addresses instead of the real public IP).
+echo "nameserver 127.0.0.1" > /etc/resolv.conf 2>/dev/null || \
+  echo "[gluetun-obscura] Warning: could not overwrite /etc/resolv.conf" \
+       "(read-only?). DNS resolution may be broken - see DOCS.md." >&2
+
 exec /gluetun-entrypoint

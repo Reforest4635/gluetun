@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.0.3
+- Fix: HA Supervisor injects its own internal DNS resolver into every
+  add-on's `/etc/resolv.conf`, which overrode Gluetun's own DNS handling.
+  Symptom: HTTP proxy log showed `dial tcp 172.30.32.1:80: connection
+  refused` for external hostnames (e.g. tracker.openbittorrent.com) -
+  172.30.32.1 is Supervisor's internal DNS/gateway address, not a real
+  public IP, meaning lookups were resolving to the wrong place entirely.
+  Fix forces the container to use Gluetun's own loopback resolver
+  (127.0.0.1) instead. Matches a documented upstream Gluetun issue with the
+  same symptom caused by other external DNS overrides (e.g. AdGuard Home).
+
 ## 1.0.2
 - Fix: docs and config.yaml incorrectly called port 8388 "SOCKS5". It's
   actually Gluetun's Shadowsocks proxy, a different (encrypted) protocol
