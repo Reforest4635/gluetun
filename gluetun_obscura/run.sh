@@ -37,6 +37,10 @@ fi
 SHADOWSOCKS_ENABLED="$(get_option shadowsocks_enabled)"
 if [ "$SHADOWSOCKS_ENABLED" = "true" ]; then
   export SHADOWSOCKS=on
+  SS_PASSWORD="$(get_option shadowsocks_password)"
+  if [ -n "$SS_PASSWORD" ]; then
+    export SHADOWSOCKS_PASSWORD="$SS_PASSWORD"
+  fi
 else
   export SHADOWSOCKS=off
 fi

@@ -1,7 +1,7 @@
 name: "Gluetun (Obscura VPN)"
-version: "1.0.1"
+version: "1.0.2"
 slug: "gluetun_obscura"
-description: "Gluetun VPN client wired up for Obscura VPN via WireGuard, exposing an HTTP/SOCKS5 proxy for routing *arr suite traffic through the tunnel."
+description: "Gluetun VPN client wired up for Obscura VPN via WireGuard, exposing an HTTP proxy and a Shadowsocks proxy for routing *arr suite traffic through the tunnel."
 url: "https://github.com/Reforest4635/gluetun"
 arch:
   - aarch64
@@ -22,8 +22,8 @@ ports:
   8000/tcp: 8000
 ports_description:
   8888/tcp: "HTTP proxy - point *arr app / Prowlarr indexer proxies here"
-  8388/tcp: "SOCKS5 proxy (TCP)"
-  8388/udp: "SOCKS5 proxy (UDP)"
+  8388/tcp: "Shadowsocks proxy (TCP) - NOT plain SOCKS5, needs a Shadowsocks-aware client"
+  8388/udp: "Shadowsocks proxy (UDP) - NOT plain SOCKS5, needs a Shadowsocks-aware client"
   8000/tcp: "Gluetun HTTP control server (status/health API)"
 options:
   wireguard_private_key: ""
@@ -36,6 +36,7 @@ options:
   firewall_outbound_subnets: []
   http_proxy_enabled: true
   shadowsocks_enabled: true
+  shadowsocks_password: ""
   control_server_api_key: ""
   timezone: "America/New_York"
   log_level: "info"
@@ -50,6 +51,7 @@ schema:
   firewall_outbound_subnets: ["str?"]
   http_proxy_enabled: "bool"
   shadowsocks_enabled: "bool"
+  shadowsocks_password: "password?"
   control_server_api_key: "password?"
   timezone: "str"
   log_level: "list(debug|info|warning|error)"
