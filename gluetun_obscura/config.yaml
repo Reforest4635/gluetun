@@ -1,5 +1,5 @@
 name: "Gluetun (Obscura VPN)"
-version: "1.0.3"
+version: "1.0.4"
 slug: "gluetun_obscura"
 description: "Gluetun VPN client wired up for Obscura VPN via WireGuard, exposing an HTTP proxy and a Shadowsocks proxy for routing *arr suite traffic through the tunnel."
 url: "https://github.com/Reforest4635/gluetun"
@@ -33,6 +33,10 @@ options:
   wireguard_public_key: ""
   wireguard_preshared_key: ""
   dns_servers: "1.1.1.1"
+  dot_enabled: false
+  block_malicious: false
+  block_ads: false
+  block_surveillance: false
   firewall_outbound_subnets: []
   http_proxy_enabled: true
   shadowsocks_enabled: true
@@ -48,6 +52,10 @@ schema:
   wireguard_public_key: "str"
   wireguard_preshared_key: "password?"
   dns_servers: "str"
+  dot_enabled: "bool"
+  block_malicious: "bool"
+  block_ads: "bool"
+  block_surveillance: "bool"
   firewall_outbound_subnets: ["str?"]
   http_proxy_enabled: "bool"
   shadowsocks_enabled: "bool"

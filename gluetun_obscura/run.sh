@@ -23,7 +23,47 @@ if [ -n "$PRESHARED_KEY" ]; then
   export WIREGUARD_PRESHARED_KEY="$PRESHARED_KEY"
 fi
 
-export DNS_ADDRESS="$(get_option dns_servers)"
+# DNS upstream. If this is left blank in the add-on Configuration tab,
+# Gluetun silently falls back to the DNS server advertised by the VPN
+# tunnel itself. That fallback is easy to miss and hard to debug - the
+# symptom is tracker/indexer lookups returning SERVFAIL ("server
+# misbehaving") from an address you never configured. Default explicitly
+# and log what we actually ended up using.
+DNS_SERVERS="$(get_option dns_servers)"
+if [ -z "$DNS_SERVERS" ]; then
+  DNS_SERVERS="1.1.1.1"
+  echo "[gluetun-obscura] dns_servers was empty, defaulting to $DNS_SERVERS" >&2
+fi
+export DNS_ADDRESS="$DNS_SERVERS"
+
+# DNS-over-TLS. Gluetun defaults this ON. Note that when DoT is enabled,
+# Gluetun uses its own DoT provider list and DNS_ADDRESS above is ignored.
+DOT_ENABLED="$(get_option dot_enabled)"
+if [ "$DOT_ENABLED" = "true" ]; then
+  export DOT=on
+else
+  export DOT=off
+fi
+
+# Blocklists. Gluetun defaults BLOCK_MALICIOUS to ON, which silently
+# NXDOMAINs or blackholes any hostname on its lists - including, in
+# practice, some BitTorrent tracker domains. The lists refresh on a timer,
+# so a setup that worked yesterday can start failing lookups today with no
+# config change. Default all three OFF here and make them explicit toggles.
+for _block in malicious ads surveillance; do
+  _val="$(get_option "block_$_block")"
+  _env="BLOCK_$(echo "$_block" | tr '[:lower:]' '[:upper:]')"
+  if [ "$_val" = "true" ]; then
+    export "$_env=on"
+  else
+    export "$_env=off"
+  fi
+done
+
+echo "[gluetun-obscura] DNS: upstream=$DNS_ADDRESS dot=$DOT" \
+     "block_malicious=$BLOCK_MALICIOUS block_ads=$BLOCK_ADS" \
+     "block_surveillance=$BLOCK_SURVEILLANCE" >&2
+
 export TZ="$(get_option timezone)"
 export LOG_LEVEL="$(get_option log_level)"
 

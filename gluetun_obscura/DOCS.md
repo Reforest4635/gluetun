@@ -129,6 +129,46 @@ curl -H "X-Api-Key: <your key>" http://<addon-host>:8000/v1/publicip/ip
 Or check the add-on log on startup - Gluetun logs the public IP it's
 tunneling through once connected.
 
+## DNS and blocklists
+
+| Option | Default | Notes |
+| --- | --- | --- |
+| `dns_servers` | `1.1.1.1` | Upstream resolver. If left blank, defaults to 1.1.1.1 rather than falling back to the tunnel's own DNS. Ignored when `dot_enabled` is on. |
+| `dot_enabled` | `false` | DNS-over-TLS. When on, Gluetun uses its own DoT provider list and ignores `dns_servers`. |
+| `block_malicious` | `false` | Gluetun's own default for this is ON; we default it OFF deliberately (see below). |
+| `block_ads` | `false` | |
+| `block_surveillance` | `false` | |
+
+The three blocklists are off by default on purpose. Gluetun downloads and
+periodically refreshes hostname/IP block lists, and those lists can include
+BitTorrent tracker domains. Because the refresh happens on a timer, a
+working setup can start failing DNS lookups days later with no config
+change on your side.
+
+### Troubleshooting DNS
+
+The add-on logs its resolved DNS settings on startup:
+
+```
+[gluetun-obscura] DNS: upstream=1.1.1.1 dot=off block_malicious=off block_ads=off block_surveillance=off
+```
+
+Check that line first - it shows what Gluetun is actually using, which may
+differ from what you think you configured.
+
+Symptoms and likely causes:
+
+- `lookup <host> on <addr>:53: server misbehaving` where `<addr>` isn't
+  anything you configured (e.g. `10.64.0.1`) - `dns_servers` was blank and
+  Gluetun fell back to the VPN-provided resolver. Fixed in 1.0.4, but
+  confirm the startup line shows the upstream you expect.
+- A hostname resolving to an obviously fake address such as
+  `10.255.255.254`, or NXDOMAIN on a domain you know is live - a blocklist
+  is swallowing it. Turn the three `block_*` options off and restart.
+- Everything resolves but nothing connects - that's not DNS. See the
+  proxy/UDP trade-off note above; DHT and UDP trackers cannot traverse an
+  HTTP proxy.
+
 ## Kill switch
 
 Gluetun's firewall blocks outbound traffic by default if the VPN tunnel

@@ -1,5 +1,26 @@
 # Changelog
 
+## 1.0.4
+- Added `dot_enabled`, `block_malicious`, `block_ads`, and
+  `block_surveillance` options. Previously none of these were exposed, so
+  Gluetun ran on its own defaults - and `BLOCK_MALICIOUS` defaults to ON.
+  Gluetun's blocklists refresh on a timer and can start blackholing
+  BitTorrent tracker domains with no config change on our side, which
+  presents as trackers that worked yesterday failing to resolve today
+  (blackhole answers like `10.255.255.254`, or SERVFAIL). All three
+  blocklists now default to OFF.
+- Fix: `dns_servers` left blank in the Configuration tab was exported as an
+  empty `DNS_ADDRESS`, causing Gluetun to silently fall back to the DNS
+  server advertised by the VPN tunnel instead of the configured upstream.
+  Symptom: HTTP proxy log lines reading `lookup <host> on 10.64.0.1:53:
+  server misbehaving` - an address that appears nowhere in the add-on
+  config. Blank now defaults to 1.1.1.1.
+- The resolved DNS settings (upstream, DoT state, all three blocklists) are
+  now logged at startup so the active configuration is visible in the
+  add-on log rather than having to be inferred.
+- Note: when `dot_enabled` is on, Gluetun uses its own DoT provider list
+  and `dns_servers` is ignored.
+
 ## 1.0.3
 - Fix: HA Supervisor injects its own internal DNS resolver into every
   add-on's `/etc/resolv.conf`, which overrode Gluetun's own DNS handling.
